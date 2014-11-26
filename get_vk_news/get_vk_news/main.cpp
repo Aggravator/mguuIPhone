@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <string>
 #include <vector>
+#include <time.h>
 #pragma comment(lib,"tinyxml/tinyxml.lib")
 #include "tinyxml\tinyxml.h"
 struct post{
@@ -11,6 +12,8 @@ struct post{
 char* months[]={"янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"};
 time_t textToDateTime(const char *dt){
 	char dates[4][6]={0};
+	time_t result=0;
+	tm *timeTransform,tmtf;
 	int j=0,ij=0;
 	bool hasChanged=true;
 	for(int i=0;dt[i]!=0;++i){
@@ -24,31 +27,38 @@ time_t textToDateTime(const char *dt){
 		}else if(hasChanged)hasChanged=false;
 	}
 	if(j==3){
-		int day=atoi(dates[0]);
+		result=time(0);
+		timeTransform=localtime(&result);
+		timeTransform->tm_mday=atoi(dates[0]);
 		int month;
 		for(month=0;month<12 && strcmp(dates[1],months[month])!=0;++month);
+		timeTransform->tm_mon=month;
 		char *pos=strstr(dates[3],":");
 		*pos++=0;
-		int hour=atoi(dates[3]);
-		int min=atoi(pos);
+		timeTransform->tm_hour=atoi(dates[3])-1;
+		timeTransform->tm_min=atoi(pos)-1;
+		timeTransform->tm_sec=0;
+		result=mktime(timeTransform);
 	}else if(j==2){
 		int date=atoi(dates[0]);
 		if(date==0){
+			result=time(0);
 			if(strcmp(dates[0],"сегодня")==0)date=1;
 			if(strcmp(dates[0],"вчера")==0)date=2;
+			result-=(date-1)*60*60*24;
+			timeTransform=localtime(&result);
+			result=0;
 			if(date!=0){
 				char *pos=strstr(dates[2],":");
 				*pos++=0;
-				int hour=atoi(dates[2]);
-				int min=atoi(pos);
+				timeTransform->tm_hour=atoi(dates[2])-1;
+				timeTransform->tm_min=atoi(pos)-1;
+				timeTransform->tm_sec=0;
+				result=mktime(timeTransform);
 			}
-		}else{
-			int month;
-			for(month=0;month<12 && strcmp(dates[1],months[month])!=0;++month);
-			int year=atoi(dates[2]);
 		}
 	}
-	return 0;
+	return result;
 }
 char* textSplit(const char *dt){
 	//dt - входная строка
@@ -150,18 +160,19 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	fp=fopen("sruden.html","wb");
 	fwrite(buff,1,ger-buff,fp);
 	fclose(fp);
-	std::vector<post*> posts;
 	char* pos=strstr(buff,"<div");
 	char *pos2=strstr(buff,"<!><!json>[]HTTP");
 	*pos2=0;
 	TiXmlDocument doc;
 	doc.Parse(pos);
 	TiXmlElement *e = doc.FirstChildElement("div");
+	std::vector<post*> posts;
 	while(e!=NULL){
 		char ht[100000]={0};
+		post *tpost=new post();
 		std::string id=e->Attribute("id")+5;
+		tpost->id=id;
 		std::string text;
-		time_t datetime;
 		TiXmlElement *postinf=getChildElementWithAttr(getChildElementWithAttr(e,"class","post_table"),"class","post_info");
 		TiXmlElement *wallText=getChildElementWithAttr(postinf,"class","wall_text");
 		if(wallText!=NULL){
@@ -178,11 +189,13 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 				getElementText(wallPostText,ht);
 				text.assign(ht);
 				text.pop_back();
+				tpost->text=text;
 			}
 		}
 		TiXmlElement *dt=getChildElementWithAttr(getChildElementWithAttr(postinf,"class","replies"),"class","reply_link_wrap sm")->FirstChildElement()->FirstChildElement()->FirstChildElement();
 		getElementText(dt,ht);
-		datetime=textToDateTime(ht);
+		tpost->datetime=textToDateTime(ht);
+		posts.push_back(tpost);
 		e=e->NextSiblingElement("div");
 	}
 	WSACleanup();
