@@ -28,6 +28,7 @@ namespace VK{
 	private:
 		static const char postsQueryTemplate[];
 		static const char postQueryTemplate[];
+		int getResponseOnQuery(const char* query,char *buffer);
 		int initConnection();
 		SOCKET s;
 	};

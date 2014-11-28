@@ -75,18 +75,28 @@ namespace VK{
 	const char VKPostHtmlExtractor::postQueryTemplate[]="POST /wkview.php HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nContent-Length: %d\nOrigin: http://vk.com\nX-Requested-With: XMLHttpRequest\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36\nContent-Type: application/x-www-form-urlencoded\nAccept: */*\nReferer: http://vk.com/do_magic_at_cmc_since_2014\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\nCookie: remixlang=0; remixdt=-39600; remixrefkey=186221f76096524285; remixsid=58805f56e7387f7178600982243f8ba07c3d9ff724b015c39001e; remixflash=15.0.0; remixscreen_depth=24; remixseenads=1\r\n\r\nact=show&al=1&loc=mguu_ru&w=wall-%s";
 	VKPostHtmlExtractor::VKPostHtmlExtractor(){
 	}
+	int VKPostHtmlExtractor::getResponseOnQuery(const char* query,char *buff){
+		if(send(this->s,query,strlen(query)+4,0)==SOCKET_ERROR){
+			if(initConnection()!=0) return 1;
+			send(this->s,query,strlen(query)+4,0);
+		}
+		bool isFirst=true;
+		int byteCount;
+		do{
+			byteCount = recv(this->s,buff, 100000, 0);
+			if((byteCount==-1 || byteCount==0) && isFirst){
+				int u=::WSAGetLastError();
+				this->initConnection();
+				byteCount=1;
+				send(this->s,query,strlen(query)+4,0);
+			}else buff+=byteCount;
+			isFirst=false;
+		}while(byteCount>0);
+	}
 	int VKPostHtmlExtractor::getDetailPostHtml(const char* postId,char *buff){
 		char query[1000];
 		sprintf(query,this->postQueryTemplate,postId);
-		if(send(this->s,query,strlen(query),0)==SOCKET_ERROR){
-			if(initConnection()!=0) return 1;
-			send(this->s,query,strlen(query),0);
-		}
-		unsigned short int byteCount=10;
-		while(byteCount>0){
-			byteCount = recv(s,buff, 999999, 0);
-			buff+=byteCount;
-		}
+		this->getResponseOnQuery(query,buff);
 		return 0;
 	}
 	int VKPostHtmlExtractor::getPostsHtmlWithOffset(const char* ownerId,const int offset,char *buff){
@@ -94,16 +104,8 @@ namespace VK{
 		sprintf(query,"%d",offset);
 		int addLength=strlen(query);
 		buff[0]=0;
-		sprintf(query,this->postsQueryTemplate,60+addLength,offset,ownerId);
-		if(send(this->s,query,strlen(query)+4,0)==SOCKET_ERROR){
-			if(initConnection()!=0) return 1;
-			send(this->s,query,strlen(query)+4,0);
-		}
-		int byteCount;
-		do{
-			byteCount = recv(this->s,buff, 100000, 0);
-			buff+=byteCount;
-		}while(byteCount>0);
+		sprintf(query,this->postsQueryTemplate,61+addLength,offset,ownerId);
+		this->getResponseOnQuery(query,buff);
 		return 0;
 	}
 	int VKPostHtmlExtractor::initConnection(){
@@ -195,6 +197,12 @@ namespace VK{
 				}
 				shift=posts.size();
 				i+=10;
+			}
+		}
+		for(int i=0;i<posts.size();++i){
+			if(posts[i]->dateTime==0){
+				extractor.getDetailPostHtml(posts[i]->id.c_str(),buff);
+				VKPostParser::parseDetailPost(buff,*posts[i]);
 			}
 		}
 	}
