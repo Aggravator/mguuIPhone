@@ -1,25 +1,20 @@
-﻿Построение начато 26.11.2014 2:14:30.
+﻿Построение начато 28.11.2014 4:02:51.
      1>Проект "C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\get_vk_news\get_vk_news.vcxproj" в узле 2 (целевые объекты build).
      1>InitializeBuildStatus:
          Создание "Debug\get_vk_news.unsuccessfulbuild", так как было задано "AlwaysCreate".
        ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
          main.cpp
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(31): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\time.inl(112): см. объявление "localtime"
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(49): warning C4996: 'localtime': This function or variable may be unsafe. Consider using localtime_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\time.inl(112): см. объявление "localtime"
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(16): warning C4101: tmtf: неиспользованная локальная переменная
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(97): warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\string.h(105): см. объявление "strcpy"
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(147): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(48): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371): см. объявление "sprintf"
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(151): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(52): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371): см. объявление "sprintf"
-     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(160): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\reply\documents\github\mguuiphone\get_vk_news\get_vk_news\main.cpp(61): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234): см. объявление "fopen"
        Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.exe" /INCREMENTAL:NO /NOLOGO wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\get_vk_news.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.lib" /MACHINE:X86 Debug\main.obj
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.exe" /INCREMENTAL:NO /NOLOGO wsock32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\get_vk_news.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.pdb" /SUBSYSTEM:WINDOWS /STACK:"5242880" /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.lib" /MACHINE:X86 Debug\main.obj
+         Debug\TinyXMLAddon.obj
+         Debug\VK.obj
      1>main.obj : warning LNK4075: не учитывается "/EDITANDCONTINUE" из-за спецификации "/INCREMENTAL:NO"
      1>LINK : warning LNK4098: библиотека по умолчанию "LIBCMTD" противоречит использованию других библиотек; используйте параметр /NODEFAULTLIB:library
          get_vk_news.vcxproj -> C:\Users\reply\Documents\GitHub\mguuIPhone\get_vk_news\Debug\get_vk_news.exe
@@ -32,4 +27,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:02.95
+Затраченное время: 00:00:01.55

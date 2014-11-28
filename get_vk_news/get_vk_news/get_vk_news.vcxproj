@@ -58,6 +58,7 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
       <ShowProgress>NotSet</ShowProgress>
+      <StackReserveSize>5242880</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -79,6 +80,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TinyXMLAddon.cpp" />
+    <ClCompile Include="VK.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TinyXMLAddon.h" />
+    <ClInclude Include="VK.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

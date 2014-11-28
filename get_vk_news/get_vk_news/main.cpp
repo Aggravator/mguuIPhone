@@ -2,114 +2,15 @@
 #include <string>
 #include <vector>
 #include <time.h>
+#include "TinyXMLAddon.h"
 #pragma comment(lib,"tinyxml/tinyxml.lib")
 #include "tinyxml\tinyxml.h"
+#include "VK.h"
 struct post{
 	std::string id;
 	std::string text;
 	time_t datetime;
 };
-char* months[]={"янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"};
-time_t textToDateTime(const char *dt){
-	char dates[4][6]={0};
-	time_t result=0;
-	tm *timeTransform,tmtf;
-	int j=0,ij=0;
-	bool hasChanged=true;
-	for(int i=0;dt[i]!=0;++i){
-		if(dt[i]!=' '){
-			if(!hasChanged){
-				hasChanged=true;
-				++j;
-				ij=0;
-			}
-			dates[j][ij++]=dt[i];
-		}else if(hasChanged)hasChanged=false;
-	}
-	if(j==3){
-		result=time(0);
-		timeTransform=localtime(&result);
-		timeTransform->tm_mday=atoi(dates[0]);
-		int month;
-		for(month=0;month<12 && strcmp(dates[1],months[month])!=0;++month);
-		timeTransform->tm_mon=month;
-		char *pos=strstr(dates[3],":");
-		*pos++=0;
-		timeTransform->tm_hour=atoi(dates[3])-1;
-		timeTransform->tm_min=atoi(pos)-1;
-		timeTransform->tm_sec=0;
-		result=mktime(timeTransform);
-	}else if(j==2){
-		int date=atoi(dates[0]);
-		if(date==0){
-			result=time(0);
-			if(strcmp(dates[0],"сегодня")==0)date=1;
-			if(strcmp(dates[0],"вчера")==0)date=2;
-			result-=(date-1)*60*60*24;
-			timeTransform=localtime(&result);
-			result=0;
-			if(date!=0){
-				char *pos=strstr(dates[2],":");
-				*pos++=0;
-				timeTransform->tm_hour=atoi(dates[2])-1;
-				timeTransform->tm_min=atoi(pos)-1;
-				timeTransform->tm_sec=0;
-				result=mktime(timeTransform);
-			}
-		}
-	}
-	return result;
-}
-char* textSplit(const char *dt){
-	//dt - входная строка
-	char parts[100][20]={0};
-	int j=0,ij=0;
-	for(int i=0;dt[i]!='\0';++i){
-		if(dt[i]==','){
-			++j;
-			ij=0;
-		}else{
-			parts[j][ij++]=dt[i];
-		}
-	}
-	return 0;
-}
-TiXmlElement * getChildElementWithAttr(TiXmlElement *parent,const char *attr,const char* value){
-	if(parent==NULL) return NULL;
-	TiXmlElement *e=parent->FirstChildElement();
-	while(e!=NULL){
-		if(e->Attribute(attr)!=NULL){
-			if(strcmp(e->Attribute(attr),value)==0) return e;
-		}
-		e=e->NextSiblingElement();
-	}
-	return NULL;
-}
-char* getElementText(TiXmlElement *parent,char *buff){
-	char *temp=buff;
-	if(strcmp(parent->Value(),"br")==0){
-		temp[0]='\n';
-		++temp;
-	}
-	TiXmlNode *e=parent->FirstChild();
-	while(e!=NULL){
-		if(dynamic_cast<TiXmlText*>(e)){
-			strcpy(temp,e->Value());
-			temp+=strlen(e->Value());
-		}else if(dynamic_cast<TiXmlElement*>(e)){
-			temp=getElementText(dynamic_cast<TiXmlElement*>(e),temp);
-		}
-		if(*(temp-1)!='\n' && e!=parent->FirstChild()){
-			*temp=' ';
-			++temp;
-		}
-		e=e->NextSibling();
-		if(e!=NULL && strcmp(e->Value(),"br")==0 && *(temp-1)!='\n'){
-			--temp;
-		}
-	}
-	return temp;
-}
 int CopyBoard(const char *str,int ll)
 {
     HGLOBAL hglb;
@@ -148,12 +49,12 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	addr_Sock.sin_addr.s_addr=inet_addr(ip);
 	addr_Sock.sin_port = htons(80); 
 	connect(Sock,(sockaddr*)&addr_Sock,sizeof(addr_Sock));
-	sprintf(query,"POST /al_wall.php HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nContent-Length: 62\nOrigin: http://vk.com\nX-Requested-With: XMLHttpRequest\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36\nContent-Type: application/x-www-form-urlencoded\nAccept: */*\nReferer: http://vk.com/mguu_ru\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\nCookie: remixlang=0; remixstid=135315822_cafe8d09e8b8c59cde; remixdt=-39600; remixrefkey=836edd9622a03cece4; remixflash=15.0.0; remixscreen_depth=24\r\n\r\nact=get_wall&al=1&fixed=&offset=%d&owner_id=-52573107&type=own",0);
+	sprintf(query,"POST /al_wall.php HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nContent-Length: 61\nOrigin: http://vk.com\nX-Requested-With: XMLHttpRequest\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36\nContent-Type: application/x-www-form-urlencoded\nAccept: */*\nReferer: http://vk.com/mguu_ru\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\nCookie: remixlang=0; remixstid=135315822_cafe8d09e8b8c59cde; remixdt=-39600; remixrefkey=836edd9622a03cece4; remixflash=15.0.0; remixscreen_depth=24\r\n\r\nact=get_wall&al=1&fixed=&offset=%d&owner_id=-52573107&type=own",0);
 	send(Sock,query,668,0);
 	char* ger=buff;
 	int g=1;
 	while(g>0){
-		g = recv(Sock, ger, 999999, 0);
+		g = recv(Sock, ger, 50000, 0);
 		ger+=g;
 	}
 	FILE *fp;
@@ -194,9 +95,10 @@ int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 		}
 		TiXmlElement *dt=getChildElementWithAttr(getChildElementWithAttr(postinf,"class","replies"),"class","reply_link_wrap sm")->FirstChildElement()->FirstChildElement()->FirstChildElement();
 		getElementText(dt,ht);
-		tpost->datetime=textToDateTime(ht);
+		tpost->datetime=VK::VKTimeToTime_t(ht);
 		posts.push_back(tpost);
 		e=e->NextSiblingElement("div");
 	}
 	WSACleanup();
+
 }
