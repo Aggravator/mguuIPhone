@@ -1105,11 +1105,21 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 			// Done with attributes (if there were any.)
 			// Read the value -- which can include other
 			// elements -- read the end tag, and return.
-			if ( StringEqual(  value.c_str(),"br", false, encoding ) ){
+			if ( StringEqual(  value.c_str(),"br", false, encoding ) || StringEqual(  value.c_str(),"img", false, encoding ) || StringEqual(  value.c_str(),"meta", false, encoding )){
 				return p+1;
 			}
 			++p;
-			p = ReadValue( p, data, encoding );		// Note this is an Element method, and will set the error if one happens.
+			if(StringEqual(  value.c_str(),"script", false, encoding )){
+				for(int i=0;true && p[i]!='\0';++i)
+					/*if(p[i]=='<' && p[1+1]=='/' && p[i+2]=='s' && p[i+3]=='c' && p[i+4]=='r' && p[i+5]=='i' && p[i+6]=='p' && p[i+7]=='t' && p[i+8]=='>'){
+						p+=i;
+						break;
+					}*/
+					if(StringEqual(p+i,"<script>",false,encoding)){
+						p+=i;
+						break;
+					}
+			}else p = ReadValue( p, data, encoding );		// Note this is an Element method, and will set the error if one happens.
 			if ( !p || !*p ) {
 				// We were looking for the end tag, but found nothing.
 				// Fix for [ 1663758 ] Failure to report error on bad XML

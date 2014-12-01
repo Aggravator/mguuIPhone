@@ -3,8 +3,10 @@ namespace VK{
 	char vkips[4][16]={0};
 	SOCKADDR_IN vk_addr;
 	const char* months[]={"янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"};
+	void deletePost(Post* post){
+		delete post;
+	}
 	Post::~Post(){
-		::MessageBoxA(0,"adfda","adfadf",0);
 	}
 	bool refreshVK(){
 		WSADATA wsaData;
@@ -21,7 +23,7 @@ namespace VK{
 	}
 	bool f=refreshVK();
 	time_t VKTimeToTime_t(const char *dt){
-		char dates[4][6]={0};
+		char dates[4][8]={0};
 		time_t result=0;
 		tm *timeTransform,tmtf;
 		int j=0,ij=0;
@@ -72,20 +74,19 @@ namespace VK{
 	}
 
 	const char VKPostHtmlExtractor::postsQueryTemplate[]="POST /al_wall.php HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nContent-Length: %d\nOrigin: http://vk.com\nX-Requested-With: XMLHttpRequest\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.65 Safari/537.36\nContent-Type: application/x-www-form-urlencoded\nAccept: */*\nReferer: http://vk.com/mguu_ru\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\nCookie: remixlang=0; remixstid=135315822_cafe8d09e8b8c59cde; remixdt=-39600; remixrefkey=836edd9622a03cece4; remixflash=15.0.0; remixscreen_depth=24\r\n\r\nact=get_wall&al=1&fixed=&offset=%d&owner_id=%s&type=own";
-	const char VKPostHtmlExtractor::postQueryTemplate[]="POST /wkview.php HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nContent-Length: %d\nOrigin: http://vk.com\nX-Requested-With: XMLHttpRequest\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36\nContent-Type: application/x-www-form-urlencoded\nAccept: */*\nReferer: http://vk.com/do_magic_at_cmc_since_2014\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\nCookie: remixlang=0; remixdt=-39600; remixrefkey=186221f76096524285; remixsid=58805f56e7387f7178600982243f8ba07c3d9ff724b015c39001e; remixflash=15.0.0; remixscreen_depth=24; remixseenads=1\r\n\r\nact=show&al=1&loc=mguu_ru&w=wall-%s";
+	const char VKPostHtmlExtractor::postQueryTemplate[]="GET /wall-%s HTTP/1.1\nHost: vk.com\nConnection: keep-alive\nCache-Control: max-age=0\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\nUser-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36\nAccept-Encoding: identity\nAccept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4\n\n";
 	VKPostHtmlExtractor::VKPostHtmlExtractor(){
 	}
 	int VKPostHtmlExtractor::getResponseOnQuery(const char* query,char *buff){
-		if(send(this->s,query,strlen(query)+4,0)==SOCKET_ERROR){
+		if(send(this->s,query,strlen(query)+2,0)==SOCKET_ERROR){
 			if(initConnection()!=0) return 1;
-			send(this->s,query,strlen(query)+4,0);
+			send(this->s,query,strlen(query)+2,0);
 		}
 		bool isFirst=true;
 		int byteCount;
 		do{
-			byteCount = recv(this->s,buff, 100000, 0);
+			byteCount = recv(this->s,buff, 50000, 0);
 			if((byteCount==-1 || byteCount==0) && isFirst){
-				int u=::WSAGetLastError();
 				this->initConnection();
 				byteCount=1;
 				send(this->s,query,strlen(query)+4,0);
@@ -142,7 +143,7 @@ namespace VK{
 					}
 					getElementText(wallPostText,ht);
 					tpost->text.assign(ht);
-					tpost->text.pop_back();
+					if(tpost->text.size()>0)tpost->text.pop_back();
 				}
 			}
 			TiXmlElement *dt=getChildElementWithAttr(getChildElementWithAttr(postinf,"class","replies"),"class","reply_link_wrap sm")->FirstChildElement()->FirstChildElement()->FirstChildElement();
@@ -155,20 +156,34 @@ namespace VK{
 	}
 	int VKPostParser::parseDetailPost(const char* htmlText,Post &post){
 		TiXmlDocument doc;
-		const char *pos=strstr(htmlText,"<div");
-		doc.Parse(pos);
-		TiXmlElement *e = doc.FirstChildElement("div");
+		const char *posS=strstr(htmlText,"<body");
+		const char *posE=strstr(htmlText,"</body>");
+		char *data=new char[posE-posS+7];
+		memcpy(data,posS,posE-posS+7);
+		doc.Parse(data);
+		delete[] data;
 		char ht[100000]={0};		
-		TiXmlElement *temp=getChildElementWithAttrDeep(e,"class","wl_owner_head_date");
-		//getChildElementWithAttr(getChildElementWithAttr(getChildElementWithAttr(e,"id","wl_head_wrap"),"class","wl_owner_head_wrap clear_fix"),"class","wl_owner_head_date");
-		temp=getChildElementWithAttr(temp,"class","wl_owner_head_date");
-		post.id=temp->Attribute("href")+6;
+		TiXmlElement *e = getChildElementWithAttrDeep(&doc,"class","fw_post_table");
+		TiXmlElement *temp=getChildElementWithAttrDeep(e,"class","fl_l fw_post_date");
 		getElementText(temp,ht);
+		*(ht+strlen(ht)-2)='\0';
 		post.dateTime=VKTimeToTime_t(ht);
-		temp=getChildElementWithAttrDeep(e,"class","wall_post_text");
-		getElementText(temp,ht);
-		post.text.assign(ht);
-		post.text.pop_back();
+		temp=getChildElementWithAttrDeep(e,"class","fw_post_info");
+		temp=temp->FirstChildElement();
+		while(temp!=NULL){
+			if(temp->Attribute("id")!=NULL){
+				if(strncmp(temp->Attribute("id"),"wpt",3)==0){
+					post.id=temp->Attribute("id")+4;
+					temp=getChildElementWithAttrDeep(e,"class","wall_post_text");
+					if(temp!=NULL){
+						getElementText(temp,ht);
+						post.text=ht;
+					}
+					break;
+				}
+			}
+			temp=temp->NextSiblingElement();
+		}
 		return 0;
 	}
 	VKPostGetter::VKPostGetter(const char *groupId){
@@ -176,8 +191,11 @@ namespace VK{
 		strcpy(this->groupId,groupId);
 	}
 	void VKPostGetter::getPostById(const char* postId,Post& post){
-		char buff[40000];
+		char buff[400000];
 		extractor.getDetailPostHtml(postId,buff);
+		post.text="";
+		post.id="";
+		post.dateTime=0;
 		VKPostParser::parseDetailPost(buff,post);
 	}
 	void VKPostGetter::getPostsAfterId(const char* postId,std::vector<Post*> &posts){
@@ -191,6 +209,7 @@ namespace VK{
 				for(j=shift;j<posts.size();++j){
 					if(posts[j]->id==postId){
 						terminator=false;
+						std::for_each(posts.begin()+j,posts.end(),deletePost);
 						posts.erase(posts.begin()+j,posts.end());
 						break;
 					}
@@ -199,12 +218,9 @@ namespace VK{
 				i+=10;
 			}
 		}
-		for(int i=0;i<posts.size();++i){
-			if(posts[i]->dateTime==0){
-				extractor.getDetailPostHtml(posts[i]->id.c_str(),buff);
-				VKPostParser::parseDetailPost(buff,*posts[i]);
-			}
-		}
+		for(int i=0;i<posts.size();++i)
+			if(posts[i]->dateTime==0)
+				this->getPostById(posts[i]->id.c_str(),*posts[i]);
 	}
 	void VKPostGetter::getPostsAfterTime(time_t time,std::vector<Post*> &posts){
 		char buff[1000000];
@@ -220,6 +236,7 @@ namespace VK{
 					}
 					if(posts[j]->dateTime<=time){
 						terminator=false;
+						std::for_each(posts.begin()+j,posts.end(),deletePost);
 						posts.erase(posts.begin()+j,posts.end());
 						break;
 					}

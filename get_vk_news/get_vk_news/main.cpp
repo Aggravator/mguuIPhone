@@ -1,31 +1,24 @@
 #include <windows.h>
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <time.h>
 #include "VK.h"
-int CopyBoard(const char *str,int ll)
-{
-    HGLOBAL hglb;
-    char *s;
- 
-    if (!(hglb = GlobalAlloc(GHND, ll))){
-        return 1;
-    }
-    if (!(s = (char *)GlobalLock(hglb))){
-        return 1;
-    }
-	::strcpy_s(s,ll,str);
-    GlobalUnlock(hglb);
-    if (!OpenClipboard(NULL) || !EmptyClipboard()) {
-        GlobalFree(hglb);
-    return 1;
-    }
-    SetClipboardData(CF_TEXT, hglb);
-    CloseClipboard();
-    return 0;
+
+void deletePost(VK::Post* post){
+	delete post;
+}
+void erasePosts(std::vector<VK::Post*> &posts,std::vector<VK::Post*>::iterator begin,std::vector<VK::Post*>::iterator end){
+	std::for_each(begin,end,deletePost);
+	posts.erase(begin,end);
 }
 int _stdcall WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow){
-	VK::VKPostGetter getter("-52573107");
+	VK::VKPostGetter getter("-75776018");
 	std::vector<VK::Post*> posts;
-	getter.getPostsAfterId("52573107_1029",posts);
+	getter.getPostsAfterId("75776018_7120",posts);
+	if(posts.size()>0){
+		erasePosts(posts,posts.begin(),posts.end());
+	}
+	return 0;
+	//getter.getPostsAfterId("52573107_1029",posts);
 }

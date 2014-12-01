@@ -9,7 +9,7 @@
 #pragma comment(lib,"tinyxml/tinyxml.lib")
 #include "tinyxml\tinyxml.h"
 #include "TinyXMLAddon.h"
-
+#include <algorithm> 
 namespace VK{
 	time_t VKTimeToTime_t(const char *dt);
 	struct Post{
@@ -18,7 +18,6 @@ namespace VK{
 		time_t dateTime;
 		~Post();
 	};
-
 	class VKPostHtmlExtractor{
 	public:
 		VKPostHtmlExtractor();

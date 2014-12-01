@@ -1,5 +1,5 @@
 #include "TinyXMLAddon.h"
-TiXmlElement * getChildElementWithAttr(TiXmlElement *parent,const char *attr,const char* value){
+TiXmlElement * getChildElementWithAttr(TiXmlNode *parent,const char *attr,const char* value){
 	if(parent==NULL) return NULL;
 	TiXmlElement *e=parent->FirstChildElement();
 	while(e!=NULL){
@@ -10,7 +10,7 @@ TiXmlElement * getChildElementWithAttr(TiXmlElement *parent,const char *attr,con
 	}
 	return NULL;
 }
-TiXmlElement * getChildElementWithAttrDeep(TiXmlElement *parent,const char *attr,const char* value){
+TiXmlElement * getChildElementWithAttrDeep(TiXmlNode *parent,const char *attr,const char* value){
 	if(parent==NULL) return NULL;
 	TiXmlElement *e=parent->FirstChildElement();
 	TiXmlElement *pp;
@@ -25,6 +25,10 @@ TiXmlElement * getChildElementWithAttrDeep(TiXmlElement *parent,const char *attr
 	return NULL;
 }
 char* getElementText(TiXmlElement *parent,char *buff){
+	if(parent==NULL){
+		buff[0]='\0';
+		return 0;
+	}
 	char *temp=buff;
 	if(strcmp(parent->Value(),"br")==0){
 		temp[0]='\n';
